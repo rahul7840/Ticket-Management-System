@@ -1,0 +1,73 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  customer
+  admin
+}
+
+enum TicketType {
+  concert
+  conference
+  sports
+}
+
+enum TicketStatus {
+  open
+  in_progress
+  closed
+}
+
+enum TicketPriority {
+  low
+  medium
+  high
+}
+
+model User {
+  id              String   @id @default(uuid())
+  name            String
+  email           String   @unique
+  type            Role
+  isDeleted       Boolean  @default(false)
+  password        String
+  access_token    String?
+  refresh_token   String?
+  tickets         Ticket[] @relation("TicketCreator")
+  assignedTickets Ticket[] @relation("TicketAssignee")
+}
+
+model Ticket {
+  id            String         @id @default(uuid())
+  title         String
+  description   String
+  type          TicketType
+  venue         String
+  status        TicketStatus
+  price         Float
+  priority      TicketPriority
+  dueDate       DateTime
+  createdBy     String
+  creator       User           @relation("TicketCreator", fields: [createdBy], onDelete: Cascade, references: [id])
+  assignedUsers User[]         @relation("TicketAssignee")
+  createdAt     DateTime       @default(now())
+}
+
+model TicketAnalytics {
+  id                         Int      @id @default(autoincrement())
+  totalTickets               Int
+  closedTickets              Int
+  openTickets                Int
+  inProgressTickets          Int
+  averageCustomerSpending    Float
+  averageTicketsBookedPerDay Float
+  createdAt                  DateTime @default(now())
+}
