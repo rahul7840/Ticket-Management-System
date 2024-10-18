@@ -17,7 +17,7 @@ export class loginDto {
 
     @ApiProperty({
         description: 'Enter the Password',
-        example: 'secure',
+        example: 'rahul@123',
         required: true,
     })
     @IsNotEmpty({ message: 'password field cannot be empty!' })

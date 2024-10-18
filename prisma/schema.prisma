@@ -41,7 +41,7 @@ model User {
   password        String
   access_token    String?
   refresh_token   String?
-  tickets         Ticket[] @relation("TicketCreator")
+  tickets         Ticket[]
   assignedTickets Ticket[] @relation("TicketAssignee")
 }
 
@@ -49,16 +49,17 @@ model Ticket {
   id            String         @id @default(uuid())
   title         String
   description   String
-  type          TicketType
+  tickeType     TicketType
   venue         String
   status        TicketStatus
   price         Float
   priority      TicketPriority
   dueDate       DateTime
   createdBy     String
-  creator       User           @relation("TicketCreator", fields: [createdBy], onDelete: Cascade, references: [id])
   assignedUsers User[]         @relation("TicketAssignee")
   createdAt     DateTime       @default(now())
+  User          User?          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id       String?
 }
 
 model TicketAnalytics {

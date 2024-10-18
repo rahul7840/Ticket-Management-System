@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import {
+    IsEmail,
+    IsEnum,
+    IsNotEmpty,
+    IsString,
+    Matches,
+} from 'class-validator';
+import { pwdRegExp } from 'src/common/types/reg.exp.types';
 
 enum Type {
     CUSTOMER = 'customer',
@@ -25,10 +32,14 @@ export class SignupDto {
 
     @ApiProperty({
         description: 'Enter the Password',
-        example: 'secure',
+        example: 'rahul@123',
     })
     @IsNotEmpty()
     @IsString()
+    @Matches(pwdRegExp, {
+        message:
+            'Password must be at least 8 characters long, contain at least one letter, one number, and one special character.',
+    })
     Password: string;
 
     @ApiProperty({

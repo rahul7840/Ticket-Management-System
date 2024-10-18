@@ -9,9 +9,10 @@ import { AllExceptionsFilter } from './common/filter/all.exception.filter';
 import { HttpExceptionFilter } from './common/filter/http.exception.filter';
 import { ResponseInterceptor } from './common/Interceptor/response.interceptor';
 import { ValidationPipe } from './common/pipes/validation.pipe';
+import { TicketsModule } from './module/tickets/tickets.module';
 
 @Module({
-    imports: [PrismaModule, AuthModule, AppConfigModule],
+    imports: [PrismaModule, AuthModule, TicketsModule, AppConfigModule],
     controllers: [AppController],
     providers: [
         { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },

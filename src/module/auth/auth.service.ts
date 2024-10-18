@@ -83,6 +83,16 @@ export class AuthService {
         return result;
     }
 
+    async getAllUsers() {
+        return await this.prismaService.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                type: true,
+            },
+        });
+    }
+
     async findOne(id: string) {
         return await this.prismaService.user.findUnique({
             where: { id, isDeleted: false },
