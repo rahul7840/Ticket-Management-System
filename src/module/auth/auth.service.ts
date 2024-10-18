@@ -11,6 +11,7 @@ import { DbHelper } from 'src/common/helper/db.helpers';
 import { JwtHelper } from 'src/common/helper/jwt.helper';
 import { HashHelper } from 'src/common/helper/hash.helper';
 import { SignupDto } from './dto/signup.dto';
+import { loginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -28,8 +29,6 @@ export class AuthService {
     }
 
     async signup(dto: SignupDto) {
-        console.log('Received DTO:', dto); // Log the entire DTO
-        console.log('Password:', dto.Password);
         const existingUser = await this.prismaService.user.findFirst({
             where: { email: dto.Email },
         });
@@ -58,6 +57,30 @@ export class AuthService {
             access_token: accessToken.accessToken,
             refresh_token: accessToken.refreshToken,
         };
+    }
+
+    async login(dto: loginDto) {
+        const foundUser = await this.dbHelper.findUserByEmail(dto.email);
+
+        if (
+            !foundUser ||
+            !(await this.hashHelper.comparePassword(
+                dto.password,
+                foundUser.password,
+            ))
+        ) {
+            throw new BadRequestException('Invalid email or password');
+        }
+
+        const accessToken = await this.generateAccessToken(foundUser.id);
+
+        const result = {
+            user_id: foundUser.id,
+            access_token: accessToken.accessToken,
+            refresh_token: accessToken.refreshToken,
+            message: 'Login successful!',
+        };
+        return result;
     }
 
     async findOne(id: string) {
@@ -153,8 +176,13 @@ export class AuthService {
     }
 
     private async createNewUser(dto: SignupDto) {
-        console.log('-->', dto.Password);
         const hashedPassword = await this.hashHelper.hashPassword(dto.Password);
+
+        if (dto.Type !== 'admin' && dto.Type !== 'customer') {
+            throw new BadRequestException(
+                'Type can only be either admin or customer',
+            );
+        }
 
         return this.prismaService.$transaction(async (prisma) => {
             const user = await prisma.user.create({
